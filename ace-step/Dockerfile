@@ -1,4 +1,4 @@
-ARG DOCKER_FROM=nvidia/cuda:12.9.0runtime-ubuntu22.04
+ARG DOCKER_FROM=nvidia/cuda:12.9.0-runtime-ubuntu22.04
 
 # Base NVidia CUDA Ubuntu image
 FROM $DOCKER_FROM AS base
