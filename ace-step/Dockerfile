@@ -1,6 +1,4 @@
-ARG CUDA_VERSION="12.9.0"
-ARG UBUNTU_VERSION="22.04"
-ARG DOCKER_FROM=nvidia/cuda:$CUDA_VERSION-cudnn-devel-ubuntu$UBUNTU_VERSION
+ARG DOCKER_FROM=nvidia/cuda:12.9.0-cudnn-runtime-ubuntu22.04
 
 # Base NVidia CUDA Ubuntu image
 FROM $DOCKER_FROM AS base
@@ -26,10 +24,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python3 /usr/bin/python
 
-ENV PATH="/usr/local/cuda/bin:${PATH}"
-
-# Install pytorch
-RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
 # Create and activate virtual environment
 RUN python -m venv /opt/venv
