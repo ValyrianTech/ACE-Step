@@ -41,6 +41,7 @@ RUN git clone https://github.com/ace-step/ACE-Step.git .
 # Install specific PyTorch version compatible with CUDA 12.8
 RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir hf_transfer peft && \
+    pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128 && \
     pip3 install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu128
 RUN pip3 install --no-cache-dir .
 
