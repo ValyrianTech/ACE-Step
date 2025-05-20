@@ -56,11 +56,16 @@ RUN chmod +x /app/download_model.py
 RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
 
 # Download the model during build (this will cache the model in the Docker image)
-# We don't specify a checkpoint directory to use the default .cache location
 # Run as appuser to ensure correct permissions
 USER appuser
 RUN python3 /app/download_model.py
 USER root
+
+# Create symbolic link from /app/checkpoints to the actual model location
+# This ensures that volume mounts to /app/checkpoints won't override the pre-downloaded models
+RUN mkdir -p /app/checkpoints && \
+    ln -sf /home/appuser/.cache/ace-step/checkpoints/* /app/checkpoints/ && \
+    chown -R appuser:appuser /app/checkpoints
 
 # Ensure target directories for volumes exist and have correct initial ownership
 RUN mkdir -p /app/outputs /app/logs && \
@@ -82,4 +87,4 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=5s --retries=5 \
   CMD curl -f http://localhost:7865/ || exit 1
 
 # Command to run the application with GPU support
-CMD ["python3", "acestep/gui.py", "--server_name", "0.0.0.0", "--bf16", "true", "--checkpoint_path", "/home/appuser/.cache/ace-step/checkpoints"]
+CMD ["python3", "acestep/gui.py", "--server_name", "0.0.0.0", "--bf16", "true", "--checkpoint_path", "/app/checkpoints"]
