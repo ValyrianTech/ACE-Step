@@ -54,7 +54,8 @@ if __name__ == "__main__":
     else:
         checkpoint_dir = None
         
-    # Use /app as home directory if no specific checkpoint_dir is provided
-    home_dir = "/app" if not checkpoint_dir else None
+    # Use /home/appuser as home directory if no specific checkpoint_dir is provided
+    # This ensures models are downloaded to /home/appuser/.cache/ace-step/checkpoints
+    home_dir = "/home/appuser" if not checkpoint_dir else None
     
     download_model(checkpoint_dir, home_dir)

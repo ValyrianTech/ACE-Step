@@ -52,9 +52,15 @@ RUN pip3 install --no-cache-dir .
 COPY download_model.py /app/download_model.py
 RUN chmod +x /app/download_model.py
 
+# Create the home directory for appuser and ensure it has the right permissions
+RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
+
 # Download the model during build (this will cache the model in the Docker image)
 # We don't specify a checkpoint directory to use the default .cache location
+# Run as appuser to ensure correct permissions
+USER appuser
 RUN python3 /app/download_model.py
+USER root
 
 # Ensure target directories for volumes exist and have correct initial ownership
 RUN mkdir -p /app/outputs /app/logs && \
