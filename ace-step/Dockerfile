@@ -48,9 +48,17 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu128 --no-deps --ignore-installed torch torchaudio torchvision
 RUN pip3 install --no-cache-dir .
 
+# Copy the model download script
+COPY download_model.py /app/download_model.py
+RUN chmod +x /app/download_model.py
+
+# Download the model during build (this will cache the model in the Docker image)
+# We don't specify a checkpoint directory to use the default .cache location
+RUN python3 /app/download_model.py
+
 # Ensure target directories for volumes exist and have correct initial ownership
-RUN mkdir -p /app/outputs /app/checkpoints /app/logs && \
-    chown -R appuser:appuser /app/outputs /app/checkpoints /app/logs
+RUN mkdir -p /app/outputs /app/logs && \
+    chown -R appuser:appuser /app/outputs /app/logs
 
 # Change ownership of app files to appuser
 RUN chown -R appuser:appuser /app
@@ -61,7 +69,7 @@ USER appuser
 # Expose the port the app runs on
 EXPOSE 7865
 
-VOLUME [ "/app/checkpoints", "/app/outputs", "/app/logs" ]
+VOLUME [ "/app/outputs", "/app/logs" ]
 
 # Set healthcheck
 HEALTHCHECK --interval=60s --timeout=10s --start-period=5s --retries=5 \
