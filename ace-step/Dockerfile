@@ -52,6 +52,9 @@ RUN chmod +x /app/download_model.py
 # Create the home directory for appuser and ensure it has the right permissions
 RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
 
+# Create matplotlib cache directory with proper permissions
+RUN mkdir -p /home/appuser/.cache/matplotlib && chown -R appuser:appuser /home/appuser/.cache
+
 # Ensure target directories for volumes exist and have correct initial ownership
 RUN mkdir -p /app/outputs /app/checkpoints /app/logs && \
     chown -R appuser:appuser /app/outputs /app/logs
