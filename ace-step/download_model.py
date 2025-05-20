@@ -12,7 +12,6 @@ to include the model files in the Docker image.
 
 import os
 import sys
-import json
 from acestep.pipeline_ace_step import ACEStepPipeline
 
 def download_model(checkpoint_dir=None, home_dir=None):
@@ -38,24 +37,13 @@ def download_model(checkpoint_dir=None, home_dir=None):
         if checkpoint_dir:
             print(f"Using custom checkpoint directory: {checkpoint_dir}")
         pipeline = ACEStepPipeline(checkpoint_dir=checkpoint_dir)
+        
+        # Force the model to download by loading the checkpoint
         pipeline.load_checkpoint()
         
         # Print the actual location where models were downloaded
-        actual_checkpoint_dir = pipeline.checkpoint_dir
-        print(f"Models were downloaded to: {actual_checkpoint_dir}")
-        
-        # Create a flag file to indicate the model has been downloaded
-        flag_file = os.path.join(actual_checkpoint_dir, "model_downloaded.flag")
-        with open(flag_file, 'w') as f:
-            json.dump({
-                'downloaded': True,
-                'timestamp': str(os.path.getmtime(actual_checkpoint_dir)),
-                'path': actual_checkpoint_dir
-            }, f)
-        print(f"Created flag file at: {flag_file}")
-        
+        print(f"Models were downloaded to: {pipeline.checkpoint_dir}")
         print("Model download complete!")
-        return actual_checkpoint_dir
     finally:
         # Restore original HOME if we changed it
         if home_dir and original_home:
@@ -72,9 +60,4 @@ if __name__ == "__main__":
     # This ensures models are downloaded to /home/appuser/.cache/ace-step/checkpoints
     home_dir = "/home/appuser" if not checkpoint_dir else None
     
-    actual_dir = download_model(checkpoint_dir, home_dir)
-    print(f"Final checkpoint directory: {actual_dir}")
-    
-    # Write the actual directory to a file for the Dockerfile to use
-    with open('/tmp/checkpoint_path.txt', 'w') as f:
-        f.write(actual_dir)
+    download_model(checkpoint_dir, home_dir)

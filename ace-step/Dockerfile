@@ -8,9 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PORT=7865 \
     HF_HUB_ENABLE_HF_TRANSFER=1 \
-    DEBIAN_FRONTEND=noninteractive \
-    NVIDIA_VISIBLE_DEVICES=all \
-    NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    DEBIAN_FRONTEND=noninteractive
 
 # Install Python and system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -25,7 +23,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python3 /usr/bin/python
-
 
 # Create and activate virtual environment
 RUN python -m venv /opt/venv
@@ -48,7 +45,7 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu128 --no-deps --ignore-installed torch torchaudio torchvision
 RUN pip3 install --no-cache-dir .
 
-# Copy the model download script
+# Copy the download script
 COPY download_model.py /app/download_model.py
 RUN chmod +x /app/download_model.py
 
@@ -60,12 +57,6 @@ RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
 USER appuser
 RUN python3 /app/download_model.py
 USER root
-
-# Create symbolic link from /app/checkpoints to the actual model location
-# This ensures that volume mounts to /app/checkpoints won't override the pre-downloaded models
-RUN mkdir -p /app/checkpoints && \
-    ln -sf /home/appuser/.cache/ace-step/checkpoints/* /app/checkpoints/ && \
-    chown -R appuser:appuser /app/checkpoints
 
 # Ensure target directories for volumes exist and have correct initial ownership
 RUN mkdir -p /app/outputs /app/logs && \
@@ -86,5 +77,6 @@ VOLUME [ "/app/outputs", "/app/logs" ]
 HEALTHCHECK --interval=60s --timeout=10s --start-period=5s --retries=5 \
   CMD curl -f http://localhost:7865/ || exit 1
 
+
 # Command to run the application with GPU support
-CMD ["python3", "acestep/gui.py", "--server_name", "0.0.0.0", "--bf16", "true", "--checkpoint_path", "/app/checkpoints"]
+CMD ["python3", "acestep/gui.py", "--server_name", "0.0.0.0", "--bf16", "true", "--checkpoint_path", "/home/appuser/.cache/ace-step/checkpoints"]
