@@ -79,4 +79,4 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=5s --retries=5 \
 
 
 # Command to run the application with GPU support
-CMD ["python3", "acestep/gui.py", "--server_name", "0.0.0.0", "--bf16", "true", "--checkpoint_path", "/home/appuser/.cache/ace-step/checkpoints"]
+CMD ["python3", "acestep/gui.py", "--server_name", "0.0.0.0", "--bf16", "true", "--checkpoint_path", "/app/checkpoints"]
