@@ -12,6 +12,8 @@ to include the model files in the Docker image.
 
 import os
 import sys
+import glob
+import shutil
 from huggingface_hub import snapshot_download
 from acestep.pipeline_ace_step import REPO_ID
 
@@ -44,10 +46,27 @@ def download_model(checkpoint_dir=None, home_dir=None):
         # Download the model directly using snapshot_download
         print(f"Downloading ACE-Step model from Hugging Face: {REPO_ID}")
         download_path = snapshot_download(REPO_ID, cache_dir=cache_dir)
-        
-        # Print the actual location where models were downloaded
         print(f"Models were downloaded to: {download_path}")
-        print("Model download complete!")
+        
+        # Create symbolic link from download_path to /app/checkpoints
+        app_checkpoints = "/app/checkpoints"
+        print(f"Creating symbolic link from {download_path} to {app_checkpoints}")
+        
+        # Make sure the parent directory exists
+        os.makedirs(os.path.dirname(app_checkpoints), exist_ok=True)
+        
+        # Remove existing directory or symlink if it exists
+        if os.path.exists(app_checkpoints) or os.path.islink(app_checkpoints):
+            if os.path.islink(app_checkpoints):
+                os.unlink(app_checkpoints)
+            else:
+                shutil.rmtree(app_checkpoints)
+        
+        # Create the symbolic link
+        os.symlink(download_path, app_checkpoints)
+        print(f"Symbolic link created: {app_checkpoints} -> {download_path}")
+        
+        print("Model download and setup complete!")
     finally:
         # Restore original HOME if we changed it
         if home_dir and original_home:
