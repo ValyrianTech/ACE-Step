@@ -12,7 +12,8 @@ to include the model files in the Docker image.
 
 import os
 import sys
-from acestep.pipeline_ace_step import ACEStepPipeline
+from huggingface_hub import snapshot_download
+from acestep.pipeline_ace_step import REPO_ID
 
 def download_model(checkpoint_dir=None, home_dir=None):
     """
@@ -32,17 +33,20 @@ def download_model(checkpoint_dir=None, home_dir=None):
         print(f"Temporarily setting HOME to {home_dir}")
     
     try:
-        # Initialize the pipeline which will download the model
-        print(f"Downloading ACE-Step model...")
+        # Determine the target cache directory
         if checkpoint_dir:
+            cache_dir = checkpoint_dir
             print(f"Using custom checkpoint directory: {checkpoint_dir}")
-        pipeline = ACEStepPipeline(checkpoint_dir=checkpoint_dir)
+        else:
+            cache_dir = os.path.join(os.path.expanduser("~"), ".cache/ace-step/checkpoints")
+            print(f"Using default checkpoint directory: {cache_dir}")
         
-        # Force the model to download by loading the checkpoint
-        pipeline.load_checkpoint()
+        # Download the model directly using snapshot_download
+        print(f"Downloading ACE-Step model from Hugging Face: {REPO_ID}")
+        download_path = snapshot_download(REPO_ID, cache_dir=cache_dir)
         
         # Print the actual location where models were downloaded
-        print(f"Models were downloaded to: {pipeline.checkpoint_dir}")
+        print(f"Models were downloaded to: {download_path}")
         print("Model download complete!")
     finally:
         # Restore original HOME if we changed it
