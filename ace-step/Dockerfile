@@ -52,15 +52,13 @@ RUN chmod +x /app/download_model.py
 # Create the home directory for appuser and ensure it has the right permissions
 RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
 
-# Download the model during build (this will cache the model in the Docker image)
-# Run as appuser to ensure correct permissions
-USER appuser
-RUN python3 /app/download_model.py
-USER root
-
 # Ensure target directories for volumes exist and have correct initial ownership
 RUN mkdir -p /app/outputs /app/checkpoints /app/logs && \
-    chown -R appuser:appuser /app/outputs /app/checkpoints /app/logs
+    chown -R appuser:appuser /app/outputs /app/logs
+
+# Download the model during build (this will cache the model in the Docker image)
+# Run as root to ensure we can create the symbolic link
+RUN python3 /app/download_model.py
 
 # Change ownership of app files to appuser
 RUN chown -R appuser:appuser /app
