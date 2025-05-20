@@ -59,8 +59,8 @@ RUN python3 /app/download_model.py
 USER root
 
 # Ensure target directories for volumes exist and have correct initial ownership
-RUN mkdir -p /app/outputs /app/logs && \
-    chown -R appuser:appuser /app/outputs /app/logs
+RUN mkdir -p /app/outputs /app/checkpoints /app/logs && \
+    chown -R appuser:appuser /app/outputs /app/checkpoints /app/logs
 
 # Change ownership of app files to appuser
 RUN chown -R appuser:appuser /app
