@@ -71,7 +71,7 @@ USER appuser
 # Expose the port the app runs on
 EXPOSE 7865
 
-VOLUME [ "/app/outputs", "/app/logs" ]
+VOLUME [ "/app/checkpoints", "/app/outputs", "/app/logs" ]
 
 # Set healthcheck
 HEALTHCHECK --interval=60s --timeout=10s --start-period=5s --retries=5 \
