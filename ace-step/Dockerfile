@@ -45,8 +45,9 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu128 --no-deps --ignore-installed torch torchaudio torchvision
 RUN pip3 install --no-cache-dir .
 
-# Install Gradio with MCP extension
-RUN pip3 install --no-cache-dir gradio[mcp]
+# Install Gradio with MCP extension and pin MCP to version 1.8.1 to avoid breaking changes
+RUN pip3 install --no-cache-dir gradio[mcp] && \
+    pip3 install --no-cache-dir mcp==1.8.1
 
 # Copy the download script
 COPY download_model.py /app/download_model.py
